@@ -14,10 +14,13 @@
 .colima-tmp/
 
 # Generated application artifacts
-mica
+/mica
 web/node_modules/
 web/dist/
 cmd/mica/web/dist/
+!cmd/mica/web/dist/
+cmd/mica/web/dist/*
+!cmd/mica/web/dist/.keep
 
 # OS and editor files
 .DS_Store

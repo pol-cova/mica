@@ -5,9 +5,9 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-4c8955.svg)](LICENSE)
 
-Mica is a local-first production engineering workspace for finding, explaining, fixing, and verifying production regressions with humans and coding agents.
+Mica is a local workspace for investigating production regressions. It compares Prometheus windows and stores evidence, hypotheses, code changes, and recovery checks in SQLite. Coding agents access the same incident record through MCP.
 
-It combines a Go daemon, a clean incident workspace, Prometheus evidence, a typed MCP server, and versioned PE/SRE agent skills. Production telemetry remains read-only; external communication requires explicit human approval.
+Mica reads telemetry but does not deploy, restart services, or modify infrastructure. Outbound messages are sent only after a named approver confirms the prepared draft.
 
 ## What it does
 
@@ -79,9 +79,11 @@ Project-scoped skills live in [`.agents/skills`](.agents/skills):
 
 ```bash
 make test
-make eval-skills
+make eval
 make build
 ```
+
+`make eval` runs the deterministic MVP scorecard. `make eval-skills` checks the packaged agent skills only. The implementation status for each PRD workstream is recorded in [docs/prd-status.md](docs/prd-status.md).
 
 Set `MICA_PROMETHEUS_BEARER_TOKEN`, or `MICA_PROMETHEUS_BASIC_USER` plus `MICA_PROMETHEUS_BASIC_PASSWORD`, when connecting to a protected Prometheus source. Mica never returns these credentials through its API or MCP server.
 

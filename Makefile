@@ -1,9 +1,11 @@
-.PHONY: test demo-down eval-skills web-embed build
+.PHONY: test demo demo-up demo-down eval eval-skills web-embed build
 
 test:
 	GOCACHE=$${GOCACHE:-/tmp/mica-go-cache} go test ./...
 
-demo:
+demo: demo-up
+
+demo-up:
 	docker compose up --build
 
 demo-down:
@@ -11,6 +13,9 @@ demo-down:
 
 eval-skills:
 	sh ./scripts/eval-skills.sh
+
+eval:
+	sh ./scripts/eval.sh
 
 web-embed:
 	npm --prefix web run build

@@ -115,6 +115,15 @@ func (s *Store) SetDemoRegression(enabled bool) error {
 	return s.saveLocked()
 }
 
+// DemoRegression reports the persisted state of the bundled deterministic
+// regression. It does not inspect or change a live service.
+func (s *Store) DemoRegression() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	_ = s.refreshLocked()
+	return s.data.DemoRegression
+}
+
 // SetMetricsSource swaps the telemetry adapter without changing the incident
 // domain. Passing nil restores the bundled deterministic demo source.
 func (s *Store) SetMetricsSource(source MetricsSource) {
