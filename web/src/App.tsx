@@ -29,8 +29,10 @@ type Evidence = {
   baselineValue: number
   incidentValue: number
   currentValue?: number
+  absoluteDelta: number
   percentDelta: number
   classification: string
+  tolerancePct: number
 }
 
 type Event = { id: string; summary: string; occurredAt: string; actorName?: string }
@@ -59,11 +61,17 @@ type Incident = {
   verification?: Verification
 }
 type Destination = { id: string; provider: string }
-type Panel = "work" | "recovery" | "context" | "share" | "review"
+type Panel = "work" | "agent" | "recovery" | "context" | "share" | "review"
 
 const iso = (offset: number) => new Date(Date.now() + offset).toISOString()
 const label = (value: string) => value.replaceAll("_", " ")
 const measure = (value: number, unit: string) => `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })}${unit ? ` ${unit}` : ""}`
+const shortTime = (value: string) => new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+const comparisonLabel = (item: Evidence) => item.classification === "insufficient_data"
+  ? "No ratio"
+  : item.percentDelta === 0
+    ? "No change"
+    : `${Math.abs(item.percentDelta).toFixed(0)}% ${item.percentDelta > 0 ? "above" : "below"} baseline`
 const normalizeIncident = (incident: Incident): Incident => ({
   ...incident,
   hypotheses: incident.hypotheses ?? [],
@@ -81,15 +89,16 @@ async function post<T>(path: string, body: unknown): Promise<T> {
   return response.json()
 }
 
-function SignalChart({ item }: { item: Evidence }) {
+function SignalChart({ item, hasLatest }: { item: Evidence; hasLatest: boolean }) {
   const data = useMemo(() => [
     { window: "Baseline", value: item.baselineValue },
     { window: "Incident", value: item.incidentValue },
-    { window: "Now", value: item.currentValue ?? item.incidentValue },
-  ], [item])
+    ...(hasLatest ? [{ window: "Latest", value: item.currentValue ?? 0 }] : []),
+  ], [item, hasLatest])
   const kind = chartKind(item.signal)
 
-  return <div className="mini-chart" role="img" aria-label={`${item.signal}: ${measure(item.baselineValue, item.unit)} at baseline and ${measure(item.currentValue ?? item.incidentValue, item.unit)} now`}>
+  const latest = hasLatest ? ` and ${measure(item.currentValue ?? 0, item.unit)} in the latest recovery window` : ""
+  return <div className="mini-chart" role="img" aria-label={`${item.signal}: ${measure(item.baselineValue, item.unit)} at baseline, ${measure(item.incidentValue, item.unit)} during the incident${latest}`}>
     {kind === "bars" ? <WindowBars data={data}/> : kind === "line" ?
       <LineChart data={data} config={{ value: { label: item.signal, color: "blue" } }} margins={{ left: 8, bottom: 24 }}>
         <XAxis dataKey="window"/>
@@ -116,7 +125,7 @@ function chartKindLabel(signal: string) {
 
 function WindowBars({ data }: { data: { window: string; value: number }[] }) {
   const maximum = Math.max(...data.map(item => item.value), 1)
-  return <div className="metric-bars" aria-hidden="true">
+  return <div className="metric-bars" aria-hidden="true" style={{ gridTemplateColumns: `repeat(${data.length}, 1fr)` }}>
     {data.map(item => <div className="metric-bar" key={item.window}>
       <div className="bar-track"><i style={{ height: `${Math.max(3, item.value / maximum * 100)}%` }}/></div>
       <span>{item.window}</span>
@@ -136,10 +145,7 @@ export default function App() {
   const [updateType, setUpdateType] = useState("investigation_update")
   const [audience, setAudience] = useState("engineering")
   const [approver, setApprover] = useState("")
-
-  const refresh = async (id = incident?.id) => {
-    if (id) setIncident(normalizeIncident(await fetch(`/api/incidents/${id}`).then(response => response.json())))
-  }
+  const incidentId = incident?.id
 
   useEffect(() => {
     Promise.all([
@@ -155,11 +161,14 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    if (!incident) return
-    const stream = new EventSource(`/api/events?incidentId=${incident.id}`)
-    stream.addEventListener("incident-update", () => refresh(incident.id))
+    if (!incidentId) return
+    const stream = new EventSource(`/api/events?incidentId=${incidentId}`)
+    stream.addEventListener("incident-update", async () => {
+      const current = await fetch(`/api/incidents/${incidentId}`).then(response => response.json())
+      setIncident(normalizeIncident(current))
+    })
     return () => stream.close()
-  }, [incident?.id])
+  }, [incidentId])
 
   const run = async (work: () => Promise<Incident>, message: string) => {
     setBusy(true)
@@ -319,9 +328,9 @@ function IncidentWorkspace(props: WorkspaceProps) {
   const hasChange = incident.changes.length > 0
   const verified = Boolean(incident.verification)
   const recovered = incident.verification?.status === "recovered"
-  const outcome = recovered ? "Recovery verified" : verified ? "Recovery needs attention" : degraded.length ? `${degraded.length} signals changed` : "No required signals changed"
+  const outcome = recovered ? "Recovery verified" : verified ? "Recovery needs attention" : degraded.length ? `${degraded.length} regressions detected` : "No required regressions detected"
   const measuredSummary = degraded.length
-    ? degraded.map(item => `${item.signal} ${item.percentDelta > 0 ? "+" : ""}${item.percentDelta.toFixed(0)}%`).join(" · ")
+    ? degraded.map(item => `${item.signal}: ${measure(item.baselineValue, item.unit)} → ${measure(item.incidentValue, item.unit)}`).join(" · ")
     : "All required signals are within their configured tolerances."
   const next = !degraded.length ? "No investigation action is required." : !hasHypothesis ? "Record a hypothesis linked to the evidence." : !hasChange ? "Record the code change and tests." : !verified ? "Collect fresh telemetry and verify recovery." : recovered ? "Review the report or prepare an update." : "Review the failed signals and continue the investigation."
   const nextPanel: Panel = !hasHypothesis || !hasChange ? "work" : !verified ? "recovery" : recovered ? "share" : "work"
@@ -356,7 +365,7 @@ function IncidentWorkspace(props: WorkspaceProps) {
 
     <section className="evidence-layout">
       <div className="evidence-main">
-        <SectionHeader title="Evidence" detail={`${new Date(incident.baselineStart).toLocaleTimeString()} baseline · ${new Date(incident.incidentEnd).toLocaleTimeString()} incident`}/>
+        <SectionHeader title="Evidence" detail={`Baseline ${shortTime(incident.baselineStart)}–${shortTime(incident.baselineEnd)} · Incident ${shortTime(incident.incidentStart)}–${shortTime(incident.incidentEnd)}`}/>
         <div className="chart-grid">
           {incident.evidence.map(item => <EvidenceCard key={item.id} item={item} incident={incident} service={service}/>) }
         </div>
@@ -375,6 +384,7 @@ function IncidentWorkspace(props: WorkspaceProps) {
     <section className="workbench" id="incident-workbench">
       <nav className="panel-tabs" aria-label="Incident workspace sections">
         <PanelTab active={panel === "work"} onClick={() => props.onPanel("work")} label="Investigation" count={incident.hypotheses.length + incident.changes.length}/>
+        <PanelTab active={panel === "agent"} onClick={() => props.onPanel("agent")} label="Agent"/>
         <PanelTab active={panel === "recovery"} onClick={() => props.onPanel("recovery")} label="Recovery" count={verified ? 1 : 0}/>
         <PanelTab active={panel === "context"} onClick={() => props.onPanel("context")} label="Context"/>
         <PanelTab active={panel === "share"} onClick={() => props.onPanel("share")} label="Share" count={incident.updates.length}/>
@@ -382,6 +392,7 @@ function IncidentWorkspace(props: WorkspaceProps) {
       </nav>
       <div className="panel-content">
         {panel === "work" && <InvestigationPanel incident={incident} onSubmit={props.onSubmit}/>}
+        {panel === "agent" && <AgentPanel incident={incident} service={service}/>}
         {panel === "recovery" && <RecoveryPanel incident={incident} busy={props.busy} onVerify={props.onVerify}/>}
         {panel === "context" && <ContextPanel service={service}/>}
         {panel === "share" && <SharePanel {...props}/>}
@@ -408,13 +419,19 @@ function ProgressSteps({ incident }: { incident: Incident }) {
 }
 
 function EvidenceCard({ item, incident, service }: { item: Evidence; incident: Incident; service: Service | null }) {
+  const hasLatest = Boolean(incident.verification)
   return <article className="evidence-card">
     <div className="evidence-card-header">
       <div><h3>{item.signal}</h3><span>{item.id} · {chartKindLabel(item.signal)}</span></div>
-      <div className={`signal-change ${item.classification}`}><b>{item.percentDelta > 0 ? "+" : ""}{item.percentDelta.toFixed(0)}%</b><span>{label(item.classification)}</span></div>
+      <div className={`signal-change ${item.classification}`}><b>{comparisonLabel(item)}</b><span>{label(item.classification)}</span></div>
     </div>
-    <SignalChart item={item}/>
-    <div className="value-row"><span>Baseline <b>{measure(item.baselineValue, item.unit)}</b></span><span>Current <b>{measure(item.currentValue ?? item.incidentValue, item.unit)}</b></span></div>
+    <SignalChart item={item} hasLatest={hasLatest}/>
+    <div className="value-row">
+      <span>Baseline <b>{measure(item.baselineValue, item.unit)}</b></span>
+      <span>Incident <b>{measure(item.incidentValue, item.unit)}</b></span>
+      <span>Latest <b>{hasLatest ? measure(item.currentValue ?? 0, item.unit) : "Not checked"}</b></span>
+    </div>
+    <p className="comparison-note">{item.classification === "insufficient_data" ? "Percent change unavailable because the baseline is zero." : `Change threshold: ±${item.tolerancePct.toFixed(0)}% from baseline.`}</p>
     <details className="provenance">
       <summary>Query and provenance</summary>
       <dl>
@@ -427,6 +444,67 @@ function EvidenceCard({ item, incident, service }: { item: Evidence; incident: I
       <code>{item.query}</code>
     </details>
   </article>
+}
+
+function AgentPanel({ incident, service }: { incident: Incident; service: Service | null }) {
+  const setupInstruction = `Read and follow ${location.origin}/agent-onboarding/SKILL.md`
+  const hasChange = incident.changes.length > 0
+  const skill = hasChange && !incident.verification ? "mica-verify-recovery" : "mica-investigate-regression"
+  const skillVersion = "0.1.0"
+  const evidenceIds = incident.evidence.map(item => item.id).join(", ")
+  const firstTool = hasChange && !incident.verification ? "inspect_service, then verify_recovery when fresh telemetry is available" : "get_service_context, then inspect_service"
+  const handoff = `Continue the existing Mica incident ${incident.id} for service ${incident.serviceId}.
+
+Use ${skill} version ${skillVersion}.
+Call record_skill_run for this incident, then call ${firstTool}.
+Existing evidence IDs: ${evidenceIds || "none"}.
+Do not create a new incident. Record hypotheses, code changes, and verification results in ${incident.id} so they remain visible in the human workspace.`
+  const mcpConfig = `{
+  "mcpServers": {
+    "mica": {
+      "command": "go",
+      "args": ["run", "./cmd/mica", "mcp"]
+    }
+  }
+}`
+
+  return <div className="agent-workspace">
+    <div className="agent-intro">
+      <span className="section-kicker">Shared incident</span>
+      <h2>Continue with an agent</h2>
+      <p>The agent reads and updates this incident through MCP. Its tool calls appear in Activity.</p>
+      <div className="connection-list">
+        <div><span>Daemon</span><b className="connected">Available</b></div>
+        <div><span>Service</span><b>{service ? `${service.name} · ${service.environment}` : incident.serviceId}</b></div>
+        <div><span>Incident</span><b>{incident.id}</b></div>
+        <div><span>Workflow</span><b>{skill} {skillVersion}</b></div>
+      </div>
+      <a className="text-button agent-doc-link" href="/setup">Open full agent setup →</a>
+    </div>
+    <div className="agent-actions">
+      <article>
+        <div className="agent-action-heading"><div><span>New connection</span><h3>Set up Mica MCP</h3></div><CopyAction value={setupInstruction} label="Copy setup instruction"/></div>
+        <p>Paste this into a compatible coding agent from the Mica repository.</p>
+        <pre><code>{setupInstruction}</code></pre>
+        <details className="manual-config"><summary>Manual MCP configuration</summary><p>Run the client from the repository root, or set its working directory to the absolute Mica path.</p><pre><code>{mcpConfig}</code></pre></details>
+      </article>
+      <article className="handoff-card">
+        <div className="agent-action-heading"><div><span>Connected agent</span><h3>Continue this incident</h3></div><CopyAction value={handoff} label="Copy incident handoff"/></div>
+        <p>This prompt keeps the agent on the current incident and selects the next workflow.</p>
+        <pre><code>{handoff}</code></pre>
+      </article>
+    </div>
+  </div>
+}
+
+function CopyAction({ value, label: buttonLabel }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false)
+  const copy = async () => {
+    await navigator.clipboard.writeText(value)
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1600)
+  }
+  return <button className="secondary-button copy-action" onClick={copy} aria-live="polite">{copied ? "Copied" : buttonLabel}</button>
 }
 
 function InvestigationPanel({ incident, onSubmit }: { incident: Incident; onSubmit: WorkspaceProps["onSubmit"] }) {

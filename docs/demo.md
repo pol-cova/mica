@@ -5,10 +5,10 @@ This walkthrough demonstrates one deliberately focused workflow: detect, investi
 ## 1. Start healthy
 
 ```bash
-docker compose up --build
+make demo-up
 ```
 
-Wait about 30 seconds for Prometheus to collect healthy checkout traffic, then open <http://127.0.0.1:8787>.
+Wait about 30 seconds for Prometheus to collect healthy checkout traffic, then open <http://127.0.0.1:8787/workspace>.
 
 The service context identifies the checkout repository, owner, PostgreSQL dependency, mapped signals, SLO reference, runbook, and safe demo notes.
 
@@ -22,7 +22,7 @@ Wait about 20 seconds. The traffic generator now exercises an intentional N+1 pa
 
 ## 3. Collect evidence
 
-Click **Compare**. Mica saves an incident and reports p95 latency, error rate, and database queries per request against a healthy baseline. Every card includes measured values and a persisted evidence ID.
+Select **Compare telemetry**. Mica saves an incident and reports p95 latency, error rate, and database queries per request against a healthy baseline. Every card shows the baseline and incident values, comparison threshold, collection windows, query, and persisted evidence ID.
 
 For an MCP-driven flow, configure:
 
@@ -34,7 +34,7 @@ For an MCP-driven flow, configure:
 }
 ```
 
-Ask Codex: “Investigate the checkout regression, fix it, and verify recovery.” The `mica-investigate-regression` skill starts with service context, detection, evidence inspection, correlation, and evidence-backed hypothesis recording. Every incident-bound MCP call appears on the shared timeline.
+Open the **Agent** tab and copy the incident handoff into the connected agent. It contains the service, existing incident ID, evidence IDs, and next skill. The agent continues the same record instead of creating a parallel investigation. Every incident-bound MCP call appears in Activity.
 
 ## 4. Record the code handoff
 
@@ -67,7 +67,7 @@ Codex may prepare a redacted, persisted update. In the workspace, the engineer r
 
 ```bash
 make test
-make eval-skills
+make eval
 ```
 
 Use `make demo-down` to remove the demo containers and volume.

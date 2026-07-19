@@ -16,7 +16,8 @@ Require `go.mod`, `docker-compose.yml`, and `.agents/skills/`. If Mica is not in
 From the Mica repository root, run:
 
 ```bash
-docker compose up --build
+make demo-up
+curl -fsS http://127.0.0.1:8787/health
 ```
 
 Verify `GET http://127.0.0.1:8787/health` returns `{"status":"ok"}`. Do not continue if the daemon or Prometheus is unavailable.
@@ -53,6 +54,12 @@ Do not start an investigation until the service context and baseline evidence so
 - Readiness, security, or release review: load the matching audit skill.
 
 Record the selected skill and version with `record_skill_run` after an incident exists.
+
+## 6. Continue an existing incident
+
+When the human supplies an incident handoff from the workspace **Agent** tab, use the exact service ID, incident ID, evidence IDs, and skill in that handoff. Call `inspect_service` for the existing incident. Do not call `detect_regressions` or create a parallel incident unless the human explicitly asks for a new comparison.
+
+Write hypotheses, changes, proposals, findings, drafts, and recovery results to the supplied incident ID. Confirm each saved record appears in the returned incident or timeline.
 
 ## Boundaries
 

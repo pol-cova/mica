@@ -6,7 +6,7 @@ test:
 demo: demo-up
 
 demo-up:
-	docker compose up --build
+	docker compose up -d --build
 
 demo-down:
 	docker compose down --volumes

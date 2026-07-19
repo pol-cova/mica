@@ -9,18 +9,19 @@ Mica is a local workspace for investigating production regressions. It compares 
 
 Mica reads telemetry but does not deploy, restart services, or modify infrastructure. Outbound messages are sent only after a named approver confirms the prepared draft.
 
-## What it does
+## Workflow
 
-- Compares a live incident window against a healthy baseline.
-- Preserves evidence, hypotheses, code changes, verification, and audit findings in one shared record.
-- Gives agents task-level MCP capabilities instead of raw PromQL or infrastructure access.
-- Drafts redacted Slack, Discord, and Telegram updates; a person must explicitly approve delivery.
-- Ships practical skills for regression investigation, recovery verification, handoff, communications, readiness, security, and release risk reviews.
+1. Compare a healthy baseline with the incident window.
+2. Inspect exact values, thresholds, Prometheus queries, and collection times.
+3. Record hypotheses, code changes, tests, and human decisions.
+4. Check the original degraded signals again using fresh telemetry.
+
+Humans use the web workspace. Agents use typed MCP tools. Both update the same persisted incident and timeline.
 
 ## Run the demo
 
 ```bash
-docker compose up --build
+make demo-up
 ```
 
 Open [http://127.0.0.1:8787](http://127.0.0.1:8787). After roughly 30 seconds of healthy traffic, trigger the bundled checkout N+1 regression:
@@ -29,7 +30,7 @@ Open [http://127.0.0.1:8787](http://127.0.0.1:8787). After roughly 30 seconds of
 MICA_DEMO_CONTROL_URL=http://127.0.0.1:8081 go run ./cmd/mica demo trigger n-plus-one
 ```
 
-Use **Compare** in the workspace to create evidence. Reset the scenario when ready to verify recovery:
+Select **Compare telemetry** in the workspace to create evidence. Reset the scenario when ready to verify recovery:
 
 ```bash
 MICA_DEMO_CONTROL_URL=http://127.0.0.1:8081 go run ./cmd/mica demo reset
@@ -47,6 +48,8 @@ Read and follow http://127.0.0.1:8787/agent-onboarding/SKILL.md
 
 The setup file checks the daemon, configures MCP, verifies the available tools, and selects the task-specific skill. You can also [read it in the repository](web/public/agent-onboarding/SKILL.md).
 
+To continue an incident created in the workspace, open its **Agent** tab and copy the incident handoff. It includes the service, full incident ID, evidence IDs, and next workflow so the agent updates the existing record.
+
 For manual setup, add Mica to the client's MCP configuration:
 
 ```json
@@ -62,18 +65,18 @@ For manual setup, add Mica to the client's MCP configuration:
 
 The MCP server exposes service context, regression detection, evidence inspection, correlation, hypothesis/change recording, proposals, safe communication drafting, audit findings, and recovery verification. It cannot deploy, restart services, mutate infrastructure, or publish externally.
 
-## Skills
+## Documentation
 
-Project-scoped skills live in [`.agents/skills`](.agents/skills):
+| I want to… | Read |
+| --- | --- |
+| Run the complete regression walkthrough | [Demo](docs/demo.md) |
+| Connect a coding agent | [Agent setup](docs/agent-setup.md) |
+| Configure a catalog, Prometheus, or destinations | [Configuration](docs/configuration.md) |
+| Understand the shared human and agent model | [Architecture](docs/architecture.md) |
+| Review implemented PRD scope | [PRD status](docs/prd-status.md) |
+| Browse every guide | [Documentation index](docs/README.md) |
 
-- `mica-investigate-regression`
-- `mica-verify-recovery`
-- `mica-incident-handoff`
-- `mica-incident-communications`
-- `mica-production-readiness-audit`
-- `mica-security-posture-audit`
-- `mica-release-risk-review`
-- `mica-agent-onboarding`
+Project-scoped skills live in [`.agents/skills`](.agents/skills).
 
 ## Development
 

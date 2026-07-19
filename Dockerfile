@@ -8,6 +8,7 @@ RUN npm run build
 FROM golang:1.25-alpine AS build
 WORKDIR /src
 COPY go.mod go.sum ./
+RUN go mod download
 COPY cmd ./cmd
 COPY internal ./internal
 COPY --from=web-build /web/dist ./cmd/mica/web/dist
