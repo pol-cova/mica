@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mica Agent Onboarding"
+  short_description: "Connect an agent to Mica safely"
+  default_prompt: "Use $mica-agent-onboarding to connect this repository to Mica and verify the MCP setup."

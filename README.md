@@ -39,7 +39,15 @@ For the complete walkthrough, see [docs/demo.md](docs/demo.md).
 
 ## Connect an agent
 
-Add Mica to a compatible MCP client:
+Give a compatible coding agent this instruction after starting Mica:
+
+```text
+Read and follow http://127.0.0.1:8787/agent-onboarding/SKILL.md
+```
+
+The setup file checks the daemon, configures MCP, verifies the available tools, and selects the task-specific skill. You can also [read it in the repository](web/public/agent-onboarding/SKILL.md).
+
+For manual setup, add Mica to the client's MCP configuration:
 
 ```json
 {
@@ -65,6 +73,7 @@ Project-scoped skills live in [`.agents/skills`](.agents/skills):
 - `mica-production-readiness-audit`
 - `mica-security-posture-audit`
 - `mica-release-risk-review`
+- `mica-agent-onboarding`
 
 ## Development
 
