@@ -78,14 +78,6 @@ Set `MICA_PROMETHEUS_BEARER_TOKEN`, or `MICA_PROMETHEUS_BASIC_USER` plus `MICA_P
 
 To enable outbound delivery, configure only the daemon with `MICA_SLACK_WEBHOOK_URL`, `MICA_DISCORD_WEBHOOK_URL`, and/or `MICA_TELEGRAM_BOT_TOKEN` plus `MICA_TELEGRAM_CHAT_ID`.
 
-## Project docs
-
-- [Demo walkthrough](docs/demo.md)
-- [Architecture](docs/architecture.md)
-- [Contributing](CONTRIBUTING.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Security policy](SECURITY.md)
-
 ## License
 
 MIT — see [LICENSE](LICENSE).
