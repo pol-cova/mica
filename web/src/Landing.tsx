@@ -138,33 +138,8 @@ function SetupPage({ onboardingUrl, agentInstruction }: { onboardingUrl: string;
 function ProductWindow() {
   return <div className="product-window">
     <header className="window-bar"><div><i/><i/><i/></div><span>127.0.0.1:8787/workspace</span><b><i/> Prometheus connected</b></header>
-    <div className="window-body">
-      <aside><b>checkout</b><span>production</span><nav><i className="active"/>Compare<i/>Investigation<i/>Recovery</nav><small>Incident #80073000</small></aside>
-      <section>
-        <header><div><small>Incident comparison</small><h3>Checkout latency regression</h3></div><button>Run comparison</button></header>
-        <div className="metric-row">
-          <Metric name="p95 latency" value="+26%" state="Degraded" tone="warn"/>
-          <Metric name="error rate" value="0%" state="No change" tone="calm"/>
-          <Metric name="DB queries / request" value="+23%" state="Degraded" tone="warn"/>
-        </div>
-        <div className="evidence-card">
-          <div className="chart-title"><div><small>p95 latency</small><b>47.5 ms</b></div><span>Baseline → Incident → Now</span></div>
-          <svg viewBox="0 0 720 150" role="img" aria-label="Latency comparison chart">
-            <defs><linearGradient id="area" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#1769ff" stopOpacity=".2"/><stop offset="1" stopColor="#1769ff" stopOpacity="0"/></linearGradient></defs>
-            <path className="grid-line" d="M0 30H720M0 75H720M0 120H720"/>
-            <path className="chart-area" d="M0 112 C80 110 120 105 180 108 S300 90 360 65 S470 44 540 46 S660 42 720 44 L720 150 L0 150Z"/>
-            <path className="chart-line" d="M0 112 C80 110 120 105 180 108 S300 90 360 65 S470 44 540 46 S660 42 720 44"/>
-            <circle cx="180" cy="108" r="4"/><circle cx="360" cy="65" r="4"/><circle cx="720" cy="44" r="4"/>
-          </svg>
-          <div className="axis"><span>Baseline</span><span>Incident</span><span>Now</span></div>
-        </div>
-      </section>
-    </div>
+    <img className="workspace-shot" src="/product/workspace.png" alt="Mica workspace showing a real checkout-service Prometheus comparison"/>
   </div>
-}
-
-function Metric({ name, value, state, tone }: { name: string; value: string; state: string; tone: string }) {
-  return <article className={`metric ${tone}`}><small>{name}</small><b>{value}</b><span>{state}</span></article>
 }
 
 function SectionLabel({ index, label }: { index: string; label: string }) {

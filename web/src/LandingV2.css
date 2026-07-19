@@ -29,6 +29,7 @@
 .copy-button { border-color: var(--l-line); color: var(--l-ink); }
 .copy-button:hover { border-color: var(--l-blue); color: var(--l-blue); }
 .product-window { height: 350px; border-color: #cfd6df; box-shadow: 0 28px 75px rgba(16,24,40,.14); }
+.workspace-shot { display: block; width: 100%; height: calc(100% - 39px); object-fit: cover; object-position: top center; background: white; }
 .window-bar { border-color: var(--l-line); background: #f6f8fa; }
 .window-body aside { border-color: var(--l-line); background: #fafbfc; }
 .window-body aside nav i.active, .window-body > section > header button { background: var(--l-blue); }

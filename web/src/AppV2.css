@@ -1,0 +1,78 @@
+.app {
+  --app-blue: #1769ff;
+  --app-blue-dark: #0d4fd7;
+  --app-blue-soft: #edf4ff;
+  --app-line: #e1e5ea;
+  --app-ink: #111827;
+  --app-muted: #667085;
+  color: var(--app-ink);
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.app header,
+.incident-bar,
+.decision,
+.signal-strip,
+.section-title,
+.chart-card,
+.chart-card footer,
+.activity,
+.event,
+.records,
+.panel,
+.context div,
+.verification div,
+.record-grid form,
+.saved,
+.finding,
+.record-grid input,
+.record-grid textarea,
+.review button,
+.channels label,
+.app > footer {
+  border-color: var(--app-line);
+}
+
+.app .decision h1 {
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+.brand { color: var(--app-ink); font-weight: 700; }
+.brand span { color: var(--app-blue); }
+.service-picker,
+.mode,
+.incident-bar,
+.decision p,
+.decision small,
+.section-title span,
+.chart-card footer,
+.event small,
+.panel > summary span,
+.muted,
+.app > footer { color: var(--app-muted); }
+
+.compare,
+.quick-actions button {
+  background: var(--app-blue);
+  box-shadow: 0 7px 18px rgba(23,105,255,.16);
+}
+
+.compare:hover,
+.quick-actions button:hover { background: var(--app-blue-dark); }
+.app .decision .next-step,
+.app .decision.attention .next-step { border-color: var(--app-blue); }
+.dot.investigating { background: var(--app-blue); }
+.event i { background: var(--app-blue); }
+.chart-card,
+.record-grid form,
+.saved,
+.finding { background: #fbfcfe; }
+.record-grid button,
+.saved > button,
+.review button { background: var(--app-blue-soft); color: var(--app-blue-dark); }
+.receipts span { background: var(--app-blue-soft); }
+.notice { color: var(--app-blue-dark); }
