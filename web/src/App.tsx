@@ -4,7 +4,6 @@ import { AreaChart } from "@/components/dither-kit/area-chart"
 import { Area } from "@/components/dither-kit/area"
 import { Tooltip } from "@/components/dither-kit/tooltip"
 import { XAxis } from "@/components/dither-kit/x-axis"
-import { YAxis } from "@/components/dither-kit/y-axis"
 import "./App.css"
 
 type Service={id:string;name:string;environment:string;repository:string;owners:string[];dependencies:string[];runtime?:string;framework?:string;runbooks?:string[];sloRefs?:string[];source?:{kind:string;refreshedAt:string}}
@@ -26,7 +25,7 @@ const measure=(value:number,unit:string)=>`${value.toLocaleString(undefined,{max
 const normalizeIncident=(incident:Incident):Incident=>({...incident,hypotheses:incident.hypotheses??[],changes:incident.changes??[],proposals:incident.proposals??[],updates:incident.updates??[],auditFindings:incident.auditFindings??[],timeline:incident.timeline??[],evidence:incident.evidence??[]})
 async function post<T>(path:string,body:unknown):Promise<T>{const r=await fetch(path,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});if(!r.ok)throw new Error((await r.json().catch(()=>null))?.error??"Request failed");return r.json()}
 
-function SignalChart({item}:{item:Evidence}){const data=useMemo(()=>[{window:"Baseline",value:item.baselineValue},{window:"Incident",value:item.incidentValue},{window:"Now",value:item.currentValue??item.incidentValue}],[item]);return <div className="mini-chart"><AreaChart data={data} config={{value:{label:item.signal,color:"blue"}}} margins={{left:38,bottom:22}}><XAxis dataKey="window"/><YAxis tickFormatter={n=>measure(n,item.unit)}/><Tooltip labelKey="window" valueFormatter={n=>measure(n,item.unit)} variant="frosted-glass"/><Area dataKey="value" variant="gradient"/></AreaChart></div>}
+function SignalChart({item}:{item:Evidence}){const data=useMemo(()=>[{window:"Base",value:item.baselineValue},{window:"Incident",value:item.incidentValue},{window:"Now",value:item.currentValue??item.incidentValue}],[item]);return <div className="mini-chart"><AreaChart data={data} config={{value:{label:item.signal,color:"blue"}}} margins={{left:8,bottom:24}}><XAxis dataKey="window"/><Tooltip labelKey="window" valueFormatter={n=>measure(n,item.unit)} variant="frosted-glass"/><Area dataKey="value" variant="gradient"/></AreaChart></div>}
 
 export default function App(){
   const [services,setServices]=useState<Service[]>([]),[service,setService]=useState<Service|null>(null),[incident,setIncident]=useState<Incident|null>(null),[destinations,setDestinations]=useState<Destination[]>([]),[chosen,setChosen]=useState<string[]>([]),[busy,setBusy]=useState(false),[notice,setNotice]=useState("")
