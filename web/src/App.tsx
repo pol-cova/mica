@@ -23,16 +23,17 @@ type Destination={id:string;provider:string}
 const iso=(offset:number)=>new Date(Date.now()+offset).toISOString()
 const label=(value:string)=>value.replaceAll("_"," ")
 const measure=(value:number,unit:string)=>`${value.toLocaleString(undefined,{maximumFractionDigits:1})}${unit?` ${unit}`:""}`
+const normalizeIncident=(incident:Incident):Incident=>({...incident,hypotheses:incident.hypotheses??[],changes:incident.changes??[],proposals:incident.proposals??[],updates:incident.updates??[],auditFindings:incident.auditFindings??[],timeline:incident.timeline??[],evidence:incident.evidence??[]})
 async function post<T>(path:string,body:unknown):Promise<T>{const r=await fetch(path,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});if(!r.ok)throw new Error((await r.json().catch(()=>null))?.error??"Request failed");return r.json()}
 
 function SignalChart({item}:{item:Evidence}){const data=useMemo(()=>[{window:"Baseline",value:item.baselineValue},{window:"Incident",value:item.incidentValue},{window:"Now",value:item.currentValue??item.incidentValue}],[item]);return <div className="mini-chart"><AreaChart data={data} config={{value:{label:item.signal,color:"blue"}}} margins={{left:38,bottom:22}}><XAxis dataKey="window"/><YAxis tickFormatter={n=>measure(n,item.unit)}/><Tooltip labelKey="window" valueFormatter={n=>measure(n,item.unit)} variant="frosted-glass"/><Area dataKey="value" variant="gradient"/></AreaChart></div>}
 
 export default function App(){
   const [services,setServices]=useState<Service[]>([]),[service,setService]=useState<Service|null>(null),[incident,setIncident]=useState<Incident|null>(null),[destinations,setDestinations]=useState<Destination[]>([]),[chosen,setChosen]=useState<string[]>([]),[busy,setBusy]=useState(false),[notice,setNotice]=useState("")
-  const refresh=async(id=incident?.id)=>{if(id)setIncident(await fetch(`/api/incidents/${id}`).then(r=>r.json()))}
-  useEffect(()=>{Promise.all([fetch("/api/services").then(r=>r.json()),fetch("/api/incidents").then(r=>r.json()),fetch("/api/communications/destinations").then(r=>r.json())]).then(([s,i,d])=>{setServices(s);setService(s[0]??null);setIncident(i[0]??null);setDestinations(d)}).catch(()=>setNotice("Mica is unavailable."))},[])
+  const refresh=async(id=incident?.id)=>{if(id)setIncident(normalizeIncident(await fetch(`/api/incidents/${id}`).then(r=>r.json())))}
+  useEffect(()=>{Promise.all([fetch("/api/services").then(r=>r.json()),fetch("/api/incidents").then(r=>r.json()),fetch("/api/communications/destinations").then(r=>r.json())]).then(([s,i,d])=>{setServices(s);setService(s[0]??null);setIncident(i[0]?normalizeIncident(i[0]):null);setDestinations(d)}).catch(()=>setNotice("Mica is unavailable."))},[])
   useEffect(()=>{if(!incident)return;const stream=new EventSource(`/api/events?incidentId=${incident.id}`);stream.addEventListener("incident-update",()=>refresh(incident.id));return()=>stream.close()},[incident?.id])
-  const run=async(work:()=>Promise<Incident>,message:string)=>{setBusy(true);try{setIncident(await work());setNotice(message)}catch(e){setNotice(e instanceof Error?e.message:"Request failed")}finally{setBusy(false)}}
+  const run=async(work:()=>Promise<Incident>,message:string)=>{setBusy(true);try{setIncident(normalizeIncident(await work()));setNotice(message)}catch(e){setNotice(e instanceof Error?e.message:"Request failed")}finally{setBusy(false)}}
   const compare=()=>service&&run(()=>post("/api/incidents/detect",{serviceId:service.id,baselineStart:iso(-210000),baselineEnd:iso(-120000),incidentStart:iso(-110000),incidentEnd:iso(0)}),"Fresh comparison recorded.")
   const verify=()=>incident&&run(()=>post(`/api/incidents/${incident.id}/verify`,{verificationStart:iso(-90000),verificationEnd:iso(0)}),"Fresh telemetry checked.")
   const prepare=()=>incident&&run(()=>post(`/api/incidents/${incident.id}/updates`,{updateType:"investigation_update",audience:"engineering",destinationIds:chosen,preparedBy:"Operator"}),"Redacted preview prepared.")
