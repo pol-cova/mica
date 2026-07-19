@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import type { FormEvent, ReactNode } from "react"
-import { AreaChart } from "@/components/dither-kit/area-chart"
-import { Area } from "@/components/dither-kit/area"
+import { AreaChart, LineChart } from "@/components/dither-kit/area-chart"
+import { Area, Line } from "@/components/dither-kit/area"
 import { Tooltip } from "@/components/dither-kit/tooltip"
 import { XAxis } from "@/components/dither-kit/x-axis"
 import "./App.css"
@@ -87,13 +87,40 @@ function SignalChart({ item }: { item: Evidence }) {
     { window: "Incident", value: item.incidentValue },
     { window: "Now", value: item.currentValue ?? item.incidentValue },
   ], [item])
+  const kind = chartKind(item.signal)
 
   return <div className="mini-chart" role="img" aria-label={`${item.signal}: ${measure(item.baselineValue, item.unit)} at baseline and ${measure(item.currentValue ?? item.incidentValue, item.unit)} now`}>
-    <AreaChart data={data} config={{ value: { label: item.signal, color: "blue" } }} margins={{ left: 8, bottom: 24 }}>
-      <XAxis dataKey="window"/>
-      <Tooltip labelKey="window" valueFormatter={value => measure(value, item.unit)} variant="frosted-glass"/>
-      <Area dataKey="value" variant="gradient"/>
-    </AreaChart>
+    {kind === "bars" ? <WindowBars data={data}/> : kind === "line" ?
+      <LineChart data={data} config={{ value: { label: item.signal, color: "blue" } }} margins={{ left: 8, bottom: 24 }}>
+        <XAxis dataKey="window"/>
+        <Tooltip labelKey="window" valueFormatter={value => measure(value, item.unit)} variant="frosted-glass"/>
+        <Line dataKey="value" strokeVariant="solid"/>
+      </LineChart> :
+      <AreaChart data={data} config={{ value: { label: item.signal, color: "blue" } }} margins={{ left: 8, bottom: 24 }}>
+        <XAxis dataKey="window"/>
+        <Tooltip labelKey="window" valueFormatter={value => measure(value, item.unit)} variant="frosted-glass"/>
+        <Area dataKey="value" variant="gradient"/>
+      </AreaChart>}
+  </div>
+}
+
+function chartKind(signal: string): "area" | "line" | "bars" {
+  if (signal.includes("error")) return "line"
+  if (signal.includes("queries")) return "bars"
+  return "area"
+}
+
+function chartKindLabel(signal: string) {
+  return chartKind(signal) === "bars" ? "Window bars" : chartKind(signal) === "line" ? "Line trend" : "Area trend"
+}
+
+function WindowBars({ data }: { data: { window: string; value: number }[] }) {
+  const maximum = Math.max(...data.map(item => item.value), 1)
+  return <div className="metric-bars" aria-hidden="true">
+    {data.map(item => <div className="metric-bar" key={item.window}>
+      <div className="bar-track"><i style={{ height: `${Math.max(3, item.value / maximum * 100)}%` }}/></div>
+      <span>{item.window}</span>
+    </div>)}
   </div>
 }
 
@@ -383,7 +410,7 @@ function ProgressSteps({ incident }: { incident: Incident }) {
 function EvidenceCard({ item, incident, service }: { item: Evidence; incident: Incident; service: Service | null }) {
   return <article className="evidence-card">
     <div className="evidence-card-header">
-      <div><h3>{item.signal}</h3><span>{item.id}</span></div>
+      <div><h3>{item.signal}</h3><span>{item.id} · {chartKindLabel(item.signal)}</span></div>
       <div className={`signal-change ${item.classification}`}><b>{item.percentDelta > 0 ? "+" : ""}{item.percentDelta.toFixed(0)}%</b><span>{label(item.classification)}</span></div>
     </div>
     <SignalChart item={item}/>
