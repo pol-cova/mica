@@ -1,0 +1,39 @@
+services:
+  checkout:
+    build: ./demo/checkout-service
+    ports:
+      - "8081:8081"
+
+  traffic:
+    build: ./demo/traffic-generator
+    depends_on:
+      - checkout
+
+  prometheus:
+    image: prom/prometheus:v3.3.0
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus"]
+    volumes:
+      - ./demo/prometheus:/etc/prometheus:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - checkout
+
+  mica:
+    build: .
+    command: ["serve", "--addr", "0.0.0.0:8787", "--prometheus-url", "http://prometheus:9090"]
+    environment:
+      MICA_DATA_DIR: /data
+      MICA_SERVICE_CATALOG: /config/mica-services.json
+      MICA_DEMO_CONTROL_URL: http://checkout:8081
+      MICA_PROMETHEUS_RATE_WINDOW: 30s
+    volumes:
+      - mica-data:/data
+      - ./demo:/config:ro
+    ports:
+      - "8787:8787"
+    depends_on:
+      - prometheus
+
+volumes:
+  mica-data:

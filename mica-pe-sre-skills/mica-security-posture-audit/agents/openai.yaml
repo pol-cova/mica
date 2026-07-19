@@ -1,0 +1,11 @@
+interface:
+  display_name: "Security Posture Audit"
+  short_description: "Perform a defensive, evidence-backed security posture review for a production service."
+  default_prompt: "Run a defensive security-posture audit using only authorized repository and Mica sources. Do not exploit or scan external systems; ground findings and provide safe verification steps."
+policy:
+  allow_implicit_invocation: true
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "mica"
+      description: "Mica production engineering MCP server"

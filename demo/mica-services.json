@@ -1,0 +1,24 @@
+{
+  "services": [
+    {
+      "id": "checkout",
+      "name": "checkout",
+      "environment": "demo",
+      "repository": "demo/checkout-service",
+      "owners": ["checkout-team"],
+      "dependencies": ["postgres"],
+      "runtime": "Go 1.25",
+      "framework": "net/http",
+      "signals": {
+        "p95_latency": "checkout_http_duration_seconds",
+        "error_rate": "checkout_http_requests_total",
+        "queries_per_request": "checkout_db_queries_total"
+      },
+      "sloRefs": ["demo checkout latency: p95 under 150ms"],
+      "runbooks": ["docs/demo.md#checkout-regression"],
+      "recentChanges": [],
+      "operationalNotes": ["Demo traffic runs continuously; Mica must use the saved baseline for verification."],
+      "source": { "kind": "configured demo catalog" }
+    }
+  ]
+}

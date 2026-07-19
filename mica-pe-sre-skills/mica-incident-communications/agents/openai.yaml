@@ -1,0 +1,11 @@
+interface:
+  display_name: "Incident Communications"
+  short_description: "Draft and publish grounded incident updates through Mica with redaction, preview, approval, and delivery tracking."
+  default_prompt: "Prepare a concise incident update from Mica facts, preview redactions and destinations, and do not publish until a human explicitly approves."
+policy:
+  allow_implicit_invocation: true
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "mica"
+      description: "Mica production engineering MCP server"

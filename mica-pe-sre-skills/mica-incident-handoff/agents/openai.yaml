@@ -1,0 +1,11 @@
+interface:
+  display_name: "Mica Incident Handoff"
+  short_description: "Create evidence-backed incident handoffs"
+  default_prompt: "Create a concise human handoff for this Mica incident, separating facts, hypotheses, changes, and verification."
+policy:
+  allow_implicit_invocation: true
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "mica"
+      description: "Mica production engineering MCP server"

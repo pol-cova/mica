@@ -1,0 +1,11 @@
+interface:
+  display_name: "Mica Recovery Verifier"
+  short_description: "Verify fixes with fresh production telemetry"
+  default_prompt: "Verify this Mica incident using its original baseline and fresh post-change telemetry."
+policy:
+  allow_implicit_invocation: true
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "mica"
+      description: "Mica production engineering MCP server"

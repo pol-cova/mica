@@ -1,0 +1,11 @@
+interface:
+  display_name: "Production Readiness Audit"
+  short_description: "Audit a service for production readiness using repository and Mica operational evidence."
+  default_prompt: "Run a production-readiness audit for this service, ground every finding in configured evidence, and mark unavailable controls as unknown rather than failed."
+policy:
+  allow_implicit_invocation: true
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "mica"
+      description: "Mica production engineering MCP server"

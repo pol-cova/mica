@@ -1,0 +1,25 @@
+# Local runtime state
+.mica/
+.verify-data/
+
+# Local build caches and tool state
+.gocache/
+.gotmp/
+.mica-go-cache/
+.mica-tmp/
+.npm-cache/
+.tmp/
+.colima-cache/
+.colima-home/
+.colima-tmp/
+
+# Generated application artifacts
+mica
+web/node_modules/
+web/dist/
+cmd/mica/web/dist/
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,11 @@
+interface:
+  display_name: "Mica Regression Investigator"
+  short_description: "Investigate production regressions with evidence"
+  default_prompt: "Investigate this production regression with Mica, connect the evidence to the codebase, and stop before any production mutation."
+policy:
+  allow_implicit_invocation: true
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "mica"
+      description: "Mica production engineering MCP server"

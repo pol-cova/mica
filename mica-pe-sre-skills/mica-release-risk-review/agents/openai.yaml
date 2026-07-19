@@ -1,0 +1,11 @@
+interface:
+  display_name: "Release Risk Review"
+  short_description: "Review operational risk before a release and define safeguards and verification."
+  default_prompt: "Assess this release with Mica context and repository changes, identify risk drivers, and produce canary, rollback, and verification conditions."
+policy:
+  allow_implicit_invocation: true
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "mica"
+      description: "Mica production engineering MCP server"
