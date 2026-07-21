@@ -1,0 +1,1 @@
+Now I open the Agent tab. The handoff already includes the service, the full incident ID, the evidence IDs, and the right workflow skill. GPT five point six in Codex uses typed MCP tools to inspect the service, test a hypothesis, and write the exact change, files, and test results back to this incident.

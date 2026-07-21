@@ -1,0 +1,1 @@
+Once the corrected service is running, Mica checks fresh telemetry against the original baseline and the original degraded signals. The agent can't move the goalposts. Mica turns agent reasoning into production work a human can review, from regression to verified recovery. And yes, this demo was built, narrated, and recorded with GPT five point six Sol in Codex.

@@ -1,0 +1,11 @@
+node_modules
+dist
+.DS_Store
+.env
+.venv
+
+# Keep the published master and review images; ignore intermediate renders.
+out/*
+!out/mica-demo.mp4
+!out/mica-demo-thumbnail.png
+!out/mica-demo-contact-sheet.png

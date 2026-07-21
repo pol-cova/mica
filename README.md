@@ -9,6 +9,8 @@ Mica is a local workspace for investigating production regressions. It compares 
 
 Mica reads telemetry but does not deploy, restart services, or modify infrastructure. Outbound messages are sent only after a named approver confirms the prepared draft.
 
+[Watch the 2:59 product demo](demo-video/out/mica-demo.mp4) or inspect the [Remotion source](demo-video/README.md).
+
 ## Workflow
 
 1. Compare a healthy baseline with the incident window.
@@ -74,6 +76,7 @@ The MCP server exposes service context, regression detection, evidence inspectio
 | Configure a catalog, Prometheus, or destinations | [Configuration](docs/configuration.md) |
 | Understand the shared human and agent model | [Architecture](docs/architecture.md) |
 | Review implemented PRD scope | [PRD status](docs/prd-status.md) |
+| Watch or rebuild the product film | [Demo film](demo-video/README.md) |
 | Browse every guide | [Documentation index](docs/README.md) |
 
 Project-scoped skills live in [`.agents/skills`](.agents/skills).

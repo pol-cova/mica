@@ -1,0 +1,1 @@
+The human and the agent aren't running separate investigations. They share one activity timeline. The agent can read, record, and prepare a proposed action. It cannot deploy, restart, roll back, or publish. And recovery stays locked until the implementation and its tests are attached.

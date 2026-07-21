@@ -1,0 +1,1 @@
+Here's the demo. A real checkout service is sending metrics to Prometheus. I trigger an N plus one query regression, then Mica compares a healthy baseline with the incident window. P ninety-five latency jumps from forty-seven point five to one hundred forty-two point eight milliseconds. Queries per request rise from two to four point two.

@@ -1,0 +1,1 @@
+Codex accelerated the whole build: the Go daemon, the React workspace, the MCP tool surface, reusable agent skills, the Docker demo, tests, documentation, and this Remotion film. GPT five point six also helped make the key design call: keep telemetry local, and make evidence, human approval, and recovery checks hard product boundaries.
