@@ -1,0 +1,1 @@
+This isn't just another alert. Every signal keeps the values, threshold, time windows, Prometheus query, evidence ID, and provenance. The chart changes with the data: an area trend, a line, or window bars. And when the baseline is zero, Mica says the ratio is unavailable. It never invents a percentage.

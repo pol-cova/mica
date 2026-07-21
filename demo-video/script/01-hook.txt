@@ -1,0 +1,1 @@
+A coding agent can read every line in a repository. But when production breaks, the code is only half the story. What changed? What did healthy look like? And did the fix actually work? That's the gap Mica closes.

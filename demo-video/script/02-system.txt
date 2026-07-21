@@ -1,0 +1,1 @@
+Mica is a local production engineering workspace for humans and coding agents. A small Go daemon reads Prometheus, keeps the incident in SQLite, serves the React workspace, and gives the agent that same record through typed MCP tools.
