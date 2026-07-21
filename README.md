@@ -11,6 +11,10 @@ Mica reads telemetry but does not deploy, restart services, or modify infrastruc
 
 [Watch the 2:59 product demo](demo-video/out/mica-demo.mp4) or inspect the [Remotion source](demo-video/README.md).
 
+## Built with Codex and GPT-5.6
+
+Mica was built in close collaboration with Codex running GPT-5.6. Codex helped turn the PRD into working Go and React code, design the MCP tools and project skills, refine the product interface, write the tests and deterministic evaluation, document the repository, and produce the Remotion demo film. Codex also used Mica through its agent workflow, which helped us test whether a coding agent could understand an incident, inspect evidence, record its work, and verify recovery using the same data as a human operator.
+
 ## Workflow
 
 1. Compare a healthy baseline with the incident window.
