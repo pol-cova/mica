@@ -13,7 +13,11 @@ Mica reads telemetry but does not deploy, restart services, or modify infrastruc
 
 ## Built with Codex and GPT-5.6
 
-Mica was built in close collaboration with Codex running GPT-5.6. Codex helped turn the PRD into working Go and React code, design the MCP tools and project skills, refine the product interface, write the tests and deterministic evaluation, document the repository, and produce the Remotion demo film. Codex also used Mica through its agent workflow, which helped us test whether a coding agent could understand an incident, inspect evidence, record its work, and verify recovery using the same data as a human operator.
+Mica was developed with Codex using a spec-driven workflow. GPT-5.6 Sol at medium and high reasoning led architecture, implementation, debugging, product review, and final integration. GPT-5.6 Terra subagents handled bounded parallel work such as repository exploration, focused implementation, and verification.
+
+The PRD was converted into explicit workstreams, architecture and workflow diagrams, typed interfaces, implementation tasks, and a tracked status document. Codex then built and refined the Go daemon, React workspace, MCP tools, project skills, tests, deterministic evaluation, documentation, and Remotion demo. Each workstream was checked against the PRD and exercised through the local demo before it was marked complete.
+
+Codex also used Mica as an agent, not only as a coding assistant. It connected through the same onboarding instructions and MCP interface included in this repository, inspected incident evidence, recorded investigation work, and verified recovery from fresh telemetry. This closed the loop between the product specification, its implementation, and its real agent workflow.
 
 ## Workflow
 
