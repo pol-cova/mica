@@ -50,7 +50,19 @@ For the complete walkthrough, see [docs/demo.md](docs/demo.md).
 
 ## Connect an agent
 
-Give a compatible coding agent this instruction after starting Mica:
+For installation, testing, and MCP setup from a single file, give any compatible coding agent this instruction:
+
+```text
+Read and follow https://raw.githubusercontent.com/pol-cova/mica/main/AGENTS.md
+```
+
+Or download the guide directly:
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/pol-cova/mica/main/AGENTS.md
+```
+
+After Mica is running, its local onboarding skill is also available:
 
 ```text
 Read and follow http://127.0.0.1:8787/agent-onboarding/SKILL.md
